@@ -227,6 +227,7 @@ public class MainActv extends ListActivity {
 	}//private void show_list()
 
 
+    
 
 	private void do_debug() {
 		/*********************************
