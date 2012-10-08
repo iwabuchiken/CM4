@@ -1,11 +1,14 @@
 package cm4.listeners;
 
 import cm4.items.RefreshDBTask;
+import cm4.main.MainActv;
 import cm4.main.R;
+import cm4.utils.DBUtils;
 import cm4.utils.Methods;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
@@ -91,7 +94,19 @@ public class DialogOnItemClickListener implements OnItemClickListener {
 			----------------------------*/
 		if (item.equals(actv.getString(R.string.dlg_db_admin_item_backup_db))) {
 			
-//			Methods.db_backup(actv, dlg);
+//			DBUtils dbu = new DBUtils(actv, MainActv.dbName);
+//			
+//			SQLiteDatabase rdb = dbu.getReadableDatabase();
+//			
+//			// Log
+//			Log.d("DialogOnItemClickListener.java" + "["
+//					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//					+ "]", "rdb.getPath()=" + rdb.getPath());
+//			
+//			rdb.close();
+
+			
+			Methods.db_backup(actv, dlg, "cm4.main");
 			
 		} else if (item.equals(actv.getString(R.string.dlg_db_admin_item_refresh_db))){
 			
