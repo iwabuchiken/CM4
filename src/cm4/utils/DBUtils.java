@@ -218,7 +218,7 @@ public class DBUtils extends SQLiteOpenHelper{
 			return true;
 		} catch (SQLException e) {
 			// Log
-			Log.d(this.getClass().getName() + 
+			Log.e(this.getClass().getName() + 
 					"[" + Thread.currentThread().getStackTrace()[2].getLineNumber() + "]", 
 					"Exception => " + e.toString());
 			

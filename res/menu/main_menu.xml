@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/main_opt_menu_create_folder" android:title="@string/main_opt_menu_create_folder" android:icon="@drawable/ifm8_option_menu_create_folder"></item>
-    <item android:id="@+id/main_opt_menu_db_activity" android:title="@string/main_opt_menu_db_activity" android:icon="@drawable/ifm8_opt_menu_db_activity"></item>
-    
-	<item 
-	    android:id="@+id/main_opt_menu_search" 
-	    android:title="@string/main_opt_menu_search" 
-	    android:icon="@drawable/ifm8_main_actv_opt_menu_search_30x30">
-	    
-	</item>
 
-	<item 
-	    android:id="@+id/main_opt_menu_preferences" 
-	    android:title="@string/main_opt_menu_preferences" 
-	    android:icon="@drawable/s_01_timer_menu_listitem_filter_30x30_v3">
-	    
-	</item>
-	
-	<item 
-	    android:id="@+id/main_opt_menu_history" 
-	    android:title="@string/main_opt_menu_history" 
-	    android:icon="@android:drawable/ic_menu_my_calendar">
-	    
-	</item>
+    <item
+        
+        android:id="@+id/main_opt_menu_create_folder"
+		android:title="@string/main_opt_menu_create_folder"
+		android:icon="@drawable/ifm8_option_menu_create_folder">
+        
+    </item>
+    
+    <item
+        
+        android:id="@+id/main_opt_menu_db_activity"
+		android:title="@string/main_opt_menu_db_activity"
+		android:icon="@drawable/ifm8_opt_menu_db_activity">
+        
+    </item>
+    
 	
 </menu>

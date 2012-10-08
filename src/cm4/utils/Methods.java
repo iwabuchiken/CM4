@@ -82,7 +82,7 @@ public class Methods {
 		// Generics
 		dlg_generic_dismiss, dlg_generic_dismiss_second_dialog, dlg_generic_dismiss_third_dialog,
 		
-		
+			
 		// dlg_create_folder.xml
 		dlg_create_folder_ok, dlg_create_folder_cancel,
 
@@ -869,7 +869,7 @@ public class Methods {
 		
 	}//public static boolean add_column_to_table()
 
-	public static List<String> get_table_list(Activity actv, String key_word) {
+	public static List<String> get_table_list(Activity actv, String dbName, String key_word) {
 //		/*********************************
 //		 * 1. Set up db
 //		 * 2. Query
@@ -963,5 +963,135 @@ public class Methods {
 		
 		return null;
 	}//public static List<String> get_table_list(Activity actv, String key_word)
-	
+
+	public static List<String> get_table_list(Activity actv, String dbName) {
+		/*********************************
+		 * 1. Set up db
+		 * 2. Query
+		 * 
+		 * 3. Build list
+		 *********************************/
+		DBUtils dbu = new DBUtils(actv, dbName);
+		
+		SQLiteDatabase rdb = dbu.getReadableDatabase();
+
+		/*********************************
+		 * 2. Query
+		 *********************************/
+		//=> source: http://stackoverflow.com/questions/4681744/android-get-list-of-tables : "Just had to do the same. This seems to work:"
+		String q = "SELECT name FROM " + "sqlite_master"+
+						" WHERE type = 'table' ORDER BY name";
+		
+		Cursor c = null;
+		try {
+			c = rdb.rawQuery(q, null);
+			
+			// Log
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "c.getCount(): " + c.getCount());
+
+		} catch (Exception e) {
+			// Log
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "Exception => " + e.toString());
+		}
+		
+		// Table names list
+		List<String> tableList = new ArrayList<String>();
+		
+		/*********************************
+		 * 3. Build list
+		 *********************************/
+		// Log
+		if (c != null) {
+			c.moveToFirst();
+			
+//			String t_name = c.getString(0);
+			
+			String reg = "IFM9.*";
+			
+			Pattern p = Pattern.compile(reg);
+			Matcher m;// = p.matcher(t_name);
+
+			
+			for (int i = 0; i < c.getCount(); i++) {
+				//
+				String t_name = c.getString(0);
+				
+				m = p.matcher(t_name);
+				
+				if (m.find()) {
+					
+					tableList.add(c.getString(0));
+					
+				}//if (variable == condition)
+//				tableList.add(c.getString(0));
+				
+//				// Log
+//				Log.d("Methods.java"
+//						+ "["
+//						+ Thread.currentThread().getStackTrace()[2]
+//								.getLineNumber() + "]", "c.getString(0): " + c.getString(0));
+				
+				
+				// Next
+				c.moveToNext();
+				
+			}//for (int i = 0; i < c.getCount(); i++)
+
+		} else {//if (c != null)
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "c => null");
+		}//if (c != null)
+
+//		// Log
+//		Log.d("Methods.java" + "["
+//				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//				+ "]", "c.getCount(): " + c.getCount());
+//		
+		rdb.close();
+		
+		return tableList;
+		
+//		return null;
+	}//public static List<String> get_table_list(Activity actv, String key_word)
+
+	public static void create_table(Activity actv,
+					String dbName, String tname,
+					String[] cols, String[] col_types) {
+		/*********************************
+		 * memo
+		 *********************************/
+		DBUtils dbu = new DBUtils(actv, dbName);
+		
+		SQLiteDatabase wdb = dbu.getWritableDatabase();
+		
+		boolean res = dbu.createTable(wdb, tname, cols, col_types);
+		
+		// Log
+		Log.d("Methods.java" + "["
+				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+				+ "]", "res=" + res);
+		
+		wdb.close();
+		
+		
+	}//public static void create_table()
+
+
+//	public static void create_table(Activity actv, String dbName, String tname) {
+//		/*********************************
+//		 * memo
+//		 *********************************/
+//		DBUtils dbu = new DBUtils(actv, dbName);
+//		
+//		SQLiteDatabase wdb = dbu.getWritableDatabase();
+//		
+//		boolean res = dbu.createTable(wdb, tname, columns, types)
+//		
+//	}//public static void create_table(String dbName, String tname)
+
 }//public class Methods

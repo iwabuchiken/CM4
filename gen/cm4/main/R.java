@@ -149,9 +149,6 @@ public final class R {
         public static final int list_row_checked_box_textView2=0x7f090058;
         public static final int main_opt_menu_create_folder=0x7f090069;
         public static final int main_opt_menu_db_activity=0x7f09006a;
-        public static final int main_opt_menu_history=0x7f09006d;
-        public static final int main_opt_menu_preferences=0x7f09006c;
-        public static final int main_opt_menu_search=0x7f09006b;
         public static final int row_dlg_item_menu_tv=0x7f090060;
         public static final int tableRow1=0x7f09003d;
         public static final int tableRow2=0x7f090040;
@@ -164,8 +161,8 @@ public final class R {
         public static final int thumb_activity_ib_prev_page=0x7f090063;
         public static final int thumb_activity_ib_toBottom=0x7f090066;
         public static final int thumb_activity_ib_toTop=0x7f090062;
-        public static final int thumb_actv_menu_move_files=0x7f09006f;
-        public static final int thumb_actv_menu_move_mode=0x7f09006e;
+        public static final int thumb_actv_menu_move_files=0x7f09006c;
+        public static final int thumb_actv_menu_move_mode=0x7f09006b;
         public static final int v1_LL_debug=0x7f09005c;
         public static final int v1_bt_back=0x7f09005d;
         public static final int v1_bt_forward=0x7f09005f;

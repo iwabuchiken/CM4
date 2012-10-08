@@ -16,6 +16,7 @@ import cm4.listeners.CustomOnItemLongClickListener;
 import cm4.listeners.DialogListener;
 import cm4.utils.DBUtils;
 import cm4.utils.Methods;
+import cm4.main.*;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -84,6 +85,30 @@ public class MainActv extends ListActivity {
 	/*********************************
 	 * DB
 	 *********************************/
+	public static String dbName = "CM4.db";
+	
+	// Table => refresh_history
+	public static String tname_refresh_history = "refresh_history";
+	
+	public static String[] cols_refresh_history = {
+		"last_refreshed", "num_of_items_added"
+	};
+	
+	public static String[] col_types_refresh_history = {
+		"INTEGER", 			"INTEGER"
+	};
+
+	// Table => item
+	public static String tname_item = "item";
+	
+	public static String[] cols_item = 
+		{"file_name", 	"file_path",	"title", "memo",
+			"last_played_at",	"table_name"};
+	
+	public static String[] col_types_item =
+		{"TEXT", 		"TEXT", 		"TEXT",	"TEXT",
+			"INTEGER",			"TEXT"};
+
 	
     /** Called when the activity is first created. */
     @Override
@@ -120,52 +145,12 @@ public class MainActv extends ListActivity {
 		 * 4. Show list
 		 *********************************/
         show_list();
-//        File f = new File(StringUtils.join(new String[]{MainActv.dirName_ExternalStorage, MainActv.}))
-        
-        /*----------------------------
-		 * 4. Set list
-			----------------------------*/
-//        set_initial_dir_list();
-        
-        /*----------------------------
-		 * 5. Set listener => Image buttons
-			----------------------------*/
-//		set_listeners();
-		
-		/*----------------------------
-		 * 6. Set path label
-			----------------------------*/
-//		Methods.updatePathLabel(this);
-		
-		/*********************************
-		 * 7. Initialize preferences
-		 *********************************/
-		
-		/*********************************
-		 * 8. Refresh DB
-		 *********************************/
-		
-//		int current_history_mode = Methods.get_pref(
-//				this, 
-//				MainActv.prefName_mainActv, 
-//				MainActv.prefName_mainActv_history_mode,
-//				-1);
-//
-//		// Log
-//		Log.d("MainActv.java" + "["
-//				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
-//				+ "]", "onCreate: current_history_mode=" + current_history_mode);
-		
-		//debug
-//		do_debug();
-//		copy_db_file();
-//		test_simple_format();
-//		restore_db();
-//		check_db();
-//		show_column_list();
-		
+
+        //debug
+        show_table_list();
         
     }//public void onCreate(Bundle savedInstanceState)
+
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -174,9 +159,44 @@ public class MainActv extends ListActivity {
 		
 		return super.onKeyDown(keyCode, event);
 	}
-    
-    
-    private void show_list() {
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// 
+		MenuInflater mi = getMenuInflater();
+		mi.inflate(R.menu.main_menu, menu);
+		
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+
+		case R.id.main_opt_menu_db_activity://---------------------------
+
+			Methods.dlg_db_activity(this);
+			
+//			//debug
+//			Methods.create_table(this,
+//					MainActv.dbName, MainActv.tname_refresh_history,
+//					MainActv.cols_refresh_history, MainActv.col_types_refresh_history
+//					);
+//			
+//			Methods.create_table(this,
+//					MainActv.dbName, MainActv.tname_item,
+//					MainActv.cols_item, MainActv.col_types_item
+//					);
+
+			break;
+			
+		}//switch (item.getItemId())
+		
+		return super.onOptionsItemSelected(item);
+		
+	}//public boolean onOptionsItemSelected(MenuItem item)
+
+	private void show_list() {
 		/*********************************
 		 * memo
 		 *********************************/
@@ -226,8 +246,17 @@ public class MainActv extends ListActivity {
     	
 	}//private void show_list()
 
-
-    
+	private void show_table_list() {
+		
+		List<String> table_list = Methods.get_table_list(this, MainActv.dbName);
+		
+		// Log
+		Log.d("MainActv.java" + "["
+				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+				+ "]", "table_list=" + table_list);
+		
+	}//private void show_table_list()
+	
 
 	private void do_debug() {
 		/*********************************
