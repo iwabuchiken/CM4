@@ -80,6 +80,13 @@ public class DialogButtonOnClickListener implements OnClickListener {
 		//
 		switch (tag_name) {
 		
+		case dlg_generic_dismiss://------------------------------------------------
+			
+			vib.vibrate(Methods.vibLength_click);
+			
+			dlg.dismiss();
+			
+			break;
 			
 		default: // ----------------------------------------------------
 			break;

@@ -1,5 +1,6 @@
 package cm4.listeners;
 
+import cm4.items.RefreshDBTask;
 import cm4.main.R;
 import cm4.utils.Methods;
 import android.app.Activity;
@@ -62,10 +63,58 @@ public class DialogOnItemClickListener implements OnItemClickListener {
 			----------------------------*/
 		switch (tag) {
 		
+		case dlg_db_admin_lv://-----------------------------
+			
+			dlg_db_admin_lv(parent, position);
+			
+			break;// case dlg_db_admin_lv
 			
 		default:
 			break;
 		}//switch (tag)
 		
 	}//public void onItemClick(AdapterView<?> parent, View v, int position, long id)
-}
+
+	private void dlg_db_admin_lv(AdapterView<?> parent, int position) {
+		/*----------------------------
+		 * 1. Get chosen item name
+		 * 2. Switching
+			----------------------------*/
+		
+		String item = (String) parent.getItemAtPosition(position);
+		
+//		// debug
+//		Toast.makeText(actv, item, 2000).show();
+		
+		/*----------------------------
+		 * 2. Switching
+			----------------------------*/
+		if (item.equals(actv.getString(R.string.dlg_db_admin_item_backup_db))) {
+			
+//			Methods.db_backup(actv, dlg);
+			
+		} else if (item.equals(actv.getString(R.string.dlg_db_admin_item_refresh_db))){
+			
+			RefreshDBTask task_ = new RefreshDBTask(actv, dlg);
+			
+			// debug
+			Toast.makeText(actv, "Starting a task...", 2000)
+					.show();
+			
+			task_.execute("Start");
+
+			dlg.dismiss();
+			
+//			// Log
+//			Log.d("DialogOnItemClickListener.java"
+//					+ "["
+//					+ Thread.currentThread().getStackTrace()[2]
+//							.getLineNumber() + "]", "DB refresh");
+			
+			
+//			Methods.refreshMainDB(actv, dlg);
+			
+		}
+	}//private void dlg_db_admin_lv()
+	
+}//public class DialogOnItemClickListener implements OnItemClickListener

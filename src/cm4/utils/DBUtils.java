@@ -5,6 +5,7 @@ package cm4.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import cm4.items.AI;
 import cm4.main.MainActv;
 
 
@@ -493,7 +494,7 @@ public class DBUtils extends SQLiteOpenHelper{
 			
 		} catch (SQLException e) {
 			// Log
-			Log.d("DBUtils.java" + "["
+			Log.e("DBUtils.java" + "["
 					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
 					+ "]", "Exception => " + e.toString());
 			
@@ -543,6 +544,172 @@ public class DBUtils extends SQLiteOpenHelper{
 //		return false;
 		
 	}//public boolean isInDB_long(SQLiteDatabase db, String tableName, long file_id)
+
+
+	public static int insert_all_data_ai(SQLiteDatabase wdb, DBUtils dbu,
+			List<AI> ai_list) {
+		/*********************************
+		 * memo
+		 *********************************/
+		
+		/*----------------------------
+		* 1. Insert data
+		----------------------------*/
+		int counter = 0;
+		int failed = 0;
+		
+		for (AI item : ai_list) {
+	
+			try {
+				// Start transaction
+				wdb.beginTransaction();
+				
+	//			for (AI item : ai_list) {
+					
+				// ContentValues
+				ContentValues val = new ContentValues();
+				
+//				created_at INTEGER, modified_at INTEGER
+	//			{"file_name", 	"file_path",	"title", "memo",
+	//				"last_played_at",	"table_name"};
+	
+				// Put values
+				val.put("created_at", item.getCreated_at());
+				val.put("modified_at", item.getCreated_at());
+				
+				val.put(MainActv.cols_item[0], item.getFile_name());
+				val.put(MainActv.cols_item[1], item.getFile_path());
+				
+				val.put(MainActv.cols_item[2], item.getTitle());
+				val.put(MainActv.cols_item[3], item.getMemo());
+				
+				val.put(MainActv.cols_item[4], item.getLast_played_at());
+				val.put(MainActv.cols_item[5], item.getTable_name());
+				
+	//			for (int i = 0; i < columnNames.length; i++) {
+	//				val.put(columnNames[i], values[i]);
+	//			}//for (int i = 0; i < columnNames.length; i++)
+				
+				// Insert data
+				wdb.insert(MainActv.tname_main, null, val);
+				
+				// Set as successful
+				wdb.setTransactionSuccessful();
+				
+				// Log
+				Log.d("DBUtils.java"
+						+ "["
+						+ Thread.currentThread().getStackTrace()[2]
+								.getLineNumber() + "]",
+						"TransactionSuccessful=" + item.getFile_name());
+				
+				counter += 1;
+				
+//			}//for (AI item : ai_list)
+//				// ContentValues
+//				ContentValues val = new ContentValues();
+//				
+//	//			{"file_name", 	"file_path",	"title", "memo",
+//	//				"last_played_at",	"table_name"};
+//	
+//				// Put values
+//				val.put(MainActv.cols_item[0], value)
+//				
+//	//			for (int i = 0; i < columnNames.length; i++) {
+//	//				val.put(columnNames[i], values[i]);
+//	//			}//for (int i = 0; i < columnNames.length; i++)
+//				
+//				// Insert data
+//				wdb.insert(tableName, null, val);
+//				
+//				// Set as successful
+//				wdb.setTransactionSuccessful();
+			
+			// End transaction
+			wdb.endTransaction();
+				
+				// Log
+	//			Log.d("DBUtils.java" + "["
+	//				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+	//				+ "]", "Data inserted => " + "(" + columnNames[0] + " => " + values[0] + 
+	//				" / " + columnNames[3] + " => " + values[3] + ")");
+				
+//				return true;
+				
+			} catch (Exception e) {
+				// Log
+				Log.e("DBUtils.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "Exception:" + item.getFile_name() + " => " + e.toString());
+				
+				failed += 1;
+				
+//				return false;
+			}//try
+		}//for (AI item : ai_list)
+		
+		// Log
+		Log.d("DBUtils.java" + "["
+				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+				+ "]", "Num of failed=" + failed);
+		
+		return counter;	
+	}//public static int insert_all_data_ai()
+
+	public static boolean insert_data_refresh_history(SQLiteDatabase wdb,
+			long refreshed_date, int num_of_new_items) {
+		
+		/*********************************
+		 * memo
+		 *********************************/
+		try {
+			// Start transaction
+			wdb.beginTransaction();
+			
+			// ContentValues
+			ContentValues val = new ContentValues();
+			
+			// Put values
+//			"last_refreshed", "num_of_items_added"
+			
+			val.put("created_at", Methods.getMillSeconds_now());
+			val.put("modified_at", Methods.getMillSeconds_now());
+			
+			val.put("last_refreshed", refreshed_date);
+			val.put("num_of_items_added", num_of_new_items);
+			
+//			for (int i = 0; i < columnNames.length; i++) {
+//				val.put(columnNames[i], values[i]);
+//			}//for (int i = 0; i < columnNames.length; i++)
+			
+			// Insert data
+			wdb.insert(MainActv.tname_refresh_history, null, val);
+			
+			// Set as successful
+			wdb.setTransactionSuccessful();
+			
+			// End transaction
+			wdb.endTransaction();
+			
+			// Log
+//			Log.d("DBUtils.java" + "["
+//				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//				+ "]", "Data inserted => " + "(" + columnNames[0] + " => " + values[0] + 
+//				" / " + columnNames[3] + " => " + values[3] + ")");
+			
+			return true;
+			
+		} catch (Exception e) {
+			
+			// Log
+			Log.e("DBUtils.java" + "["
+				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+				+ "]", "Exception! => " + e.toString());
+			
+			return false;
+			
+		}//try
+	}//public static boolean insert_data_refresh_history()
 
 }//public class DBUtils
 

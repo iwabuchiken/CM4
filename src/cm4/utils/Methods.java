@@ -1,6 +1,7 @@
 package cm4.utils;
 
 
+import cm4.items.AI;
 import cm4.listeners.CustomOnItemLongClickListener;
 import cm4.listeners.DialogButtonOnClickListener;
 import cm4.listeners.DialogButtonOnTouchListener;
@@ -503,6 +504,8 @@ public class Methods {
 		 * 4. Set adapter
 		 * 
 		 * 5. Set listener to list
+		 * 5-2. Set listener => Cancel button
+		 * 
 		 * 6. Show dialog
 			----------------------------*/
 		Dialog dlg = Methods.dlg_template_cancel(
@@ -550,6 +553,13 @@ public class Methods {
 		lv.setTag(Methods.DialogItemTags.dlg_db_admin_lv);
 		
 		lv.setOnItemClickListener(new DialogOnItemClickListener(actv, dlg));
+		
+		/*********************************
+		 * 5-2. Set listener => Cancel button
+		 *********************************/
+//		Button bt_cancel = (Button) dlg.findViewById(R.id.dlg_db_admin_bt_cancel);
+//		
+//		bt_cancel.setOnClickListener(l)
 		
 		/*----------------------------
 		 * 6. Show dialog
@@ -1080,6 +1090,484 @@ public class Methods {
 		
 		
 	}//public static void create_table()
+
+	/*********************************
+	 * <Return>
+	 * -1	=> Can't create table
+	 * -2	=> No file in the base directory
+	 * -3	=> No new file
+	 *********************************/
+//	public static boolean refreshMainDB(Activity actv, Dialog dlg) {
+	public static int refresh_main_db(Activity actv) {
+		/*----------------------------
+		 * Steps
+		 * 1. Set up DB(writable)
+		 * 2. Table exists?
+		 * 2-1. If no, then create one
+		 * 
+		 * 3. Execute query for audio files
+
+		 * 4. Insert data into db
+		 * 5. Update table "refresh_log"
+		 * 
+		 * 9. Close db
+		 * 10. Return
+			----------------------------*/
+		/*----------------------------
+		 * 1. Set up DB(writable)
+			----------------------------*/
+		//
+		DBUtils dbu = new DBUtils(actv, MainActv.dbName);
+		
+		//
+		SQLiteDatabase wdb = dbu.getWritableDatabase();
+
+		/*----------------------------
+		 * 2. Table exists?
+		 * 2-1. If no, then create one
+		 * 		1. baseDirName
+		 * 		2. backupTableName
+			----------------------------*/
+		boolean res = Methods.refreshMainDB_1_set_up_table(wdb, dbu, MainActv.tname_item);
+
+		if (res == false) {
+			
+			// Log
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "res == false");
+			
+			wdb.close();
+			
+			return -1;
+			
+		}//if (res == false)
+		
+		/*----------------------------
+		 * 3. Execute query for audio files
+		 * 	1. Get value => Last refreshed date
+			----------------------------*/
+//		Cursor c = Methods.refreshMainDB_2_exec_query(actv, wdb, dbu);
+		/*********************************
+		 * 3.1. Get value => Last refreshed date
+		 *********************************/
+		long last_refreshed_date = Methods.get_last_refreshed_date(wdb, dbu);
+		
+		// Log
+		Log.d("Methods.java" + "["
+				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+				+ "]", "last_refreshed_date=" + last_refreshed_date);
+		
+		/*********************************
+		 * memo
+		 *********************************/
+		String path = StringUtils.join(
+					(new String[]{
+						MainActv.dname_storage_internal,
+						MainActv.dname_tt_internal}),
+						File.separator);
+						
+    	File base_dir = new File(path);
+
+		File[] file_list = base_dir.listFiles();
+		
+		List<AI> ai_list = new ArrayList<AI>();
+		
+		if (file_list.length < 1) {
+			
+			// Log
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "file_list.length < 1");
+			
+			wdb.close();
+			
+			return -2;
+			
+		}//if (file_list.length == condition)
+		
+		// Log
+		Log.d("Methods.java" + "["
+				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+				+ "]", "file_list.length=" + file_list.length);
+		
+		/*********************************
+		 * If new files, then build a list
+		 *********************************/
+		int num_of_items = 0;
+		
+		for (File f : file_list) {
+			
+			if (f.lastModified() > last_refreshed_date) {
+//				String file_name, String title, String memo,
+//				long last_played_at,
+//				String table_name
+				
+				ai_list.add(new AI(
+						f.getName(),
+				    	StringUtils.join(
+	    				new String[]{
+	    						MainActv.dname_storage_internal,
+//	    						MainActv.dname_source_folder_tt},
+	    						MainActv.dname_tt_internal},
+	    						File.separator),
+
+						"",
+						"",
+						0,
+						MainActv.tname_main,
+						f.lastModified()
+						));
+				
+				num_of_items += 1;
+				
+			}//if (f.lastModified() == condition)
+			
+		}//for (File f : file_list)
+		
+		if (ai_list.size() < 1) {
+			
+			// Log
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "ai_list.size() < 1");
+			
+			wdb.close();
+			
+			return -3;
+			
+		}//if (ai_list.size() == condition)
+		
+		/*********************************
+		 * Insert data => AI, history
+		 *********************************/
+		int i_res = DBUtils.insert_all_data_ai(wdb, dbu, ai_list);
+		
+		// Log
+		Log.d("Methods.java" + "["
+				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+				+ "]", "i_res=" + i_res);
+		
+		/*----------------------------
+		 * 4. Insert data into db
+			----------------------------*/
+//		int numOfItemsAdded;
+//		
+//		if (c.getCount() < 1) {
+//			
+//			// Log
+//			Log.d("Methods.java" + "["
+//					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//					+ "]", "Query result: 0");
+//			
+//			numOfItemsAdded = 0;
+//			
+//			// debug
+//			Toast.makeText(actv, "新規のファイルはありません", 2000).show();
+//			
+//		} else {//if (c.getCount() < 1)
+//			
+//			numOfItemsAdded = refreshMainDB_3_insert_data(actv, wdb, dbu, c);
+//			
+//		}//if (c.getCount() < 1)
+		
+		/*----------------------------
+		 * 9. Close db
+			----------------------------*/
+		wdb.close();
+		
+		/*----------------------------
+		 * 10. Return
+			----------------------------*/
+		return i_res;
+		
+	}//public static boolean refresh_main_db(Activity actv)
+
+	/*********************************
+	 * <Return>
+	 * -1	=> Query failed
+	 * -2	=> c.getCount() < 1
+	 * 
+	 *********************************/
+	
+	private static long get_last_refreshed_date(SQLiteDatabase wdb, DBUtils dbu) {
+		/*********************************
+		 * memo
+		 *********************************/
+		String sql = "SELECT * FROM " + MainActv.tname_refresh_history
+					+ " ORDER BY " + android.provider.BaseColumns._ID
+					+ " DESC";
+		
+		Cursor c = null;
+		
+		try {
+			
+			c = wdb.rawQuery(sql, null);
+			
+		} catch (Exception e) {
+			// Log
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "Exception => " + e.toString());
+			
+//			rdb.close();
+			
+			return -1;
+		}
+		
+		if (c.getCount() < 1) {
+			
+			return -2;
+			
+		} else {//if (condition)
+			
+			c.moveToFirst();
+			
+			return c.getLong(3);
+			
+		}//if (condition)
+		
+		
+//		return 0;
+	}//private static long get_last_refreshed_date(SQLiteDatabase wdb, DBUtils dbu)
+
+	private static int refreshMainDB_3_insert_data(Activity actv, SQLiteDatabase wdb, DBUtils dbu, Cursor c) {
+//		/*----------------------------
+//		 * 4. Insert data into db
+//			----------------------------*/
+//		int numOfItemsAdded = insertDataIntoDB(actv, MainActv.dirName_base, c);
+//			
+////		int numOfItemsAdded = -1;
+//		
+//		/*----------------------------
+//		 * 5. Update table "refresh_log"
+//			----------------------------*/
+//		c.moveToPrevious();
+//		
+//		long lastItemDate = c.getLong(3);
+//		
+//		updateRefreshLog(actv, wdb, dbu, lastItemDate, numOfItemsAdded);
+//		
+//		// Log
+//		Log.d("Methods.java" + "["
+//				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//				+ "]", "c.getLong(3) => " + c.getLong(3));
+//		
+//
+//		return numOfItemsAdded;
+
+		return 0;
+		
+	}//private static int refreshMainDB_3_insert_data(Cursor c)
+
+	private static Cursor refreshMainDB_2_exec_query(Activity actv, SQLiteDatabase wdb, DBUtils dbu) {
+//		/*----------------------------
+//		 * 3. Execute query for image files
+//		 * 		1. ContentResolver
+//		 * 		2. Uri
+//		 * 		3. proj
+//		 * 		4. Last refreshed date
+//		 * 		5. Execute query
+//			----------------------------*/
+//		/*----------------------------
+//		 * 3.1. ContentResolver, Uri, proj
+//			----------------------------*/
+//		ContentResolver cr = actv.getContentResolver();
+//		
+//        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+//        
+//		String[] proj = DBUtils.proj;
+//
+//		/*----------------------------
+//		 * 3.4. Last refreshed date
+//			----------------------------*/
+//		long lastRefreshedDate = 0;		// Initial value => 0
+//
+//		boolean result = dbu.tableExists(wdb, MainActv.tableName_refreshLog);
+//		
+//		if (result != false) {
+//			// Log
+//			Log.d("Methods.java" + "["
+//					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//					+ "]", "Table exists: " + MainActv.tableName_refreshLog);
+//			
+//			
+//			// REF=> http://www.accessclub.jp/sql/10.html
+//			String sql = "SELECT * FROM refresh_log ORDER BY " + android.provider.BaseColumns._ID + " DESC";
+//			
+//			Cursor tempC = wdb.rawQuery(sql, null);
+//			
+//			Log.d("Methods.java" + "["
+//					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//					+ "]", "tempC.getCount() => " + tempC.getCount());
+//	
+//			if (tempC.getCount() > 0) {
+//				
+//				tempC.moveToFirst();
+//				
+//				lastRefreshedDate = tempC.getLong(1);
+//				
+//				// Log
+//				Log.d("Methods.java"
+//						+ "["
+//						+ Thread.currentThread().getStackTrace()[2]
+//								.getLineNumber() + "]", 
+//						"lastRefreshedDate => " + String.valueOf(lastRefreshedDate) +
+//						" (I will refresh db based on this date!)");
+//				
+//			}//if (tempC.getCount() > 0)
+//		} else {//if (result != false)
+//			
+//			// Log
+//			Log.d("Methods.java" + "["
+//					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//					+ "]", "Table doesn't exist: " + MainActv.tableName_refreshLog);
+//			
+//			// Create one
+//			result = dbu.createTable(
+//											wdb, 
+//											MainActv.tableName_refreshLog, 
+//											DBUtils.cols_refresh_log, 
+//											DBUtils.col_types_refresh_log);
+//			
+//			if (result == true) {
+//				// Log
+//				Log.d("Methods.java"
+//						+ "["
+//						+ Thread.currentThread().getStackTrace()[2]
+//								.getLineNumber() + "]", "Table created: " + MainActv.tableName_refreshLog);
+//				
+//			} else {//if (result == true)
+//				// Log
+//				Log.d("Methods.java"
+//						+ "["
+//						+ Thread.currentThread().getStackTrace()[2]
+//								.getLineNumber() + "]", "Create table failed: " + MainActv.tableName_refreshLog);
+//				
+//			}//if (result == true)
+//			
+//		}//if (result != false)
+//		
+//		/*----------------------------
+//		 * 3.5. Execute query
+//			----------------------------*/
+//		// REF=> http://blog.csdn.net/uoyevoli/article/details/4970860
+//		Cursor c = actv.managedQuery(
+//											uri, 
+//											proj,
+//											MediaStore.Images.Media.DATE_ADDED + " > ?",
+//											new String[] {String.valueOf(lastRefreshedDate)},
+//											null);
+//		
+//		// Log
+//		Log.d("Methods.java" + "["
+//				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//				+ "]", "Last refreshed (in sec): " + String.valueOf(lastRefreshedDate / 1000));
+//
+//        actv.startManagingCursor(c);
+//        
+//        // Log
+//		Log.d("Methods.java" + "["
+//				+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//				+ "]", "c.getCount() => " + c.getCount());
+//
+//		return c;
+
+		return null;
+		
+	}//private static Cursor refreshMainDB_2_exec_query()
+
+	/****************************************
+	 *	refreshMainDB_1_set_up_table(SQLiteDatabase wdb, DBUtils dbu)
+	 * 
+	 * <Caller> 1. <Desc> 1. <Params> 1.
+	 * 
+	 * <Return>
+	 *  false		=> Can't create table
+	 * 	true		=> Either (1) New table created, or, (2) Table exists
+	 * 
+	 * <Steps> 1.
+	 * @param tname 
+	 ****************************************/
+	private static boolean refreshMainDB_1_set_up_table(
+						SQLiteDatabase wdb, DBUtils dbu, String tname) {
+		/*----------------------------
+		 * 2-1.1. baseDirName
+			----------------------------*/
+		
+		boolean result = dbu.tableExists(wdb, tname);
+		
+		// If the table doesn't exist, create one
+		if (result == false) {
+
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "Table doesn't exist: " + tname);
+			
+			result = 
+					dbu.createTable(wdb, tname, DBUtils.cols, DBUtils.col_types);
+			
+			if (result == false) {
+
+				Log.d("Methods.java"
+						+ "["
+						+ Thread.currentThread().getStackTrace()[2]
+								.getLineNumber() + "]", "Can't create a table: "+ tname);
+				
+				return false;
+				
+			} else {//if (result == false)
+				
+				Log.d("Methods.java"
+						+ "["
+						+ Thread.currentThread().getStackTrace()[2]
+								.getLineNumber() + "]", "Table created: "+ tname);
+				
+				return true;
+				
+			}//if (result == false)
+
+		} else {//if (result == false)
+			
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "Table exists: "+ tname);
+
+			return true;
+			
+		}//if (result == false)
+		
+	}//private static boolean refreshMainDB_1_set_up_table(SQLiteDatabase wdb, DBUtils dbu)
+
+	public static void save_refresh_history(Activity actv,
+						String dbName, String tname,
+						long refreshed_date, int num_of_new_items) {
+		
+		/*********************************
+		 * memo
+		 *********************************/
+		DBUtils dbu = new DBUtils(actv, dbName);
+		
+		SQLiteDatabase wdb = dbu.getWritableDatabase();
+		
+		boolean res = DBUtils.insert_data_refresh_history(wdb, refreshed_date, num_of_new_items);
+		
+		if (res == true) {
+			// Log
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "Refresh history => Saved");
+			
+		} else {//if (res == true)
+			
+			// Log
+			Log.d("Methods.java" + "["
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+					+ "]", "Save refresh history => Failed");
+			
+		}//if (res == true)
+		
+	}//public static void save_refresh_history(Activity actv)
 
 
 //	public static void create_table(Activity actv, String dbName, String tname) {

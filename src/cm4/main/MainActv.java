@@ -99,6 +99,9 @@ public class MainActv extends ListActivity {
 	};
 
 	// Table => item
+	public static String tname_main = "CM4";
+	
+	// Table => item
 	public static String tname_item = "item";
 	
 	public static String[] cols_item = 
@@ -183,8 +186,10 @@ public class MainActv extends ListActivity {
 //					MainActv.cols_refresh_history, MainActv.col_types_refresh_history
 //					);
 //			
+//			Methods.drop_table(this, MainActv.dbName, MainActv.tname_item);
+//			
 //			Methods.create_table(this,
-//					MainActv.dbName, MainActv.tname_item,
+//					MainActv.dbName, MainActv.tname_main,
 //					MainActv.cols_item, MainActv.col_types_item
 //					);
 
@@ -206,7 +211,13 @@ public class MainActv extends ListActivity {
 //    						MainActv.dname_source_folder_tt}),
 //    						File.separator);
     	
-    	File f = new File(MainActv.dname_storage_internal);
+		String path = StringUtils.join(new String[]{
+				MainActv.dname_storage_internal,
+				MainActv.dname_tt_internal
+		}, File.separator);
+		
+//    	File f = new File(MainActv.dname_storage_internal);
+		File f = new File(path);
     	
     	// Log
 		Log.d("MainActv.java" + "["
@@ -215,15 +226,28 @@ public class MainActv extends ListActivity {
 		
 		File[] f_list = f.listFiles();
 		
+		List<String> list = new ArrayList<String>();
+		
 		for (File f_item : f_list) {
 			
-			// Log
-			Log.d("MainActv.java" + "["
-					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
-			  		+ "]", "f_item.getName()=" + f_item.getName());
+			list.add(f_item.getName());
+			
+//			// Log
+//			Log.d("MainActv.java" + "["
+//					+ Thread.currentThread().getStackTrace()[2].getLineNumber()
+//			  		+ "]", "f_item.getName()=" + f_item.getName());
 			
 		}//for (File f_item : f_list)
     	
+		ArrayAdapter aAdp = new ArrayAdapter<String>(
+						this,
+						android.R.layout.simple_list_item_1,
+						list
+						);
+		
+		this.setListAdapter(aAdp);
+
+		
 //    	File[] f_list = f.listFiles();
 //    	
 //    	// Log
